@@ -1,8 +1,6 @@
-function Validator(formSelector, options) {
-    // Gán giá trị mặc định cho tham số khi định nghĩa (5)
-    if (!options) {
-        options = {};
-    }
+function Validator(formSelector) {
+    var _this = this;
+
     function getParent(element, selector) {
         while (element.parentElement) {
             if (element.parentElement.matches(selector)) {
@@ -79,10 +77,13 @@ function Validator(formSelector, options) {
         function handleValidate(event) {
             var rules = formRules[event.target.name];
             var errorMessage;
-            rules.find(function (rule) {
+
+            for(var rule of rules) {
                 errorMessage = rule(event.target.value);
-                return errorMessage;
-            });
+                if(errorMessage) {
+                    break;
+                }
+            }
 
             // Nếu có lỗi thì hiển thị message lỗi ra UI
 
@@ -117,7 +118,9 @@ function Validator(formSelector, options) {
         // Xử lý hành vi submit form 
         formElement.onsubmit = function (event) {
             event.preventDefault();
+            
 
+            // this keyword
             var inputs = formElement.querySelectorAll('[name][rules]');
             var isValid = true;
             for (var input of inputs) {
@@ -133,7 +136,7 @@ function Validator(formSelector, options) {
             };
             if (isValid) {
 
-                if (typeof options.onSubmit === 'function') {
+                if (typeof _this.onSubmit === 'function') {
 
                     var enableInputs = formElement.querySelectorAll('[name]:not([disabled])');
                     console.log(enableInputs);
@@ -163,7 +166,7 @@ function Validator(formSelector, options) {
                         return values;
                     }, {});
                     // Gọi lại hàm onsubmit và trả về giá trị của form
-                    options.onSubmit(formValues);
+                    _this.onSubmit(formValues);
                 } else {
                     formElement.submit();
                 }
@@ -173,3 +176,9 @@ function Validator(formSelector, options) {
 
     }
 }
+
+/**
+ * Fix bugs
+ * -find method
+ * -onSubmit method
+ */
